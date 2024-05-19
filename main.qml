@@ -10,7 +10,7 @@ Window {
     Rectangle {
         id: scene
         anchors.fill: parent
-        state: "LeftState" // Начальное состояние сцены
+        state: "InitialState" // Начальное состояние
 
         Rectangle {
             id: leftRectangle
@@ -24,7 +24,19 @@ Window {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: scene.state = "LeftState" // Устанавливаем состояние сцены в LeftState при клике
+                onClicked: {
+                    ball.x += 30
+                    if (ball.x >= rightRectangle.x) {
+                        scene.state = "InitialState"
+                    } else {
+                        scene.state = "OtherState"
+                    }
+                }
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: "move"
             }
         }
 
@@ -40,60 +52,52 @@ Window {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: scene.state = "RightState" // Устанавливаем состояние сцены в RightState при клике
+                onClicked: scene.state = "InitialState"
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: "return"
             }
         }
 
         Rectangle {
             id: ball
             color: "darkGreen"
-            x: leftRectangle.x + 5 // Начальная позиция мяча совпадает с позицией левого прямоугольника
+            x: leftRectangle.x + 5
             y: leftRectangle.y + 5
             width: leftRectangle.width - 10
             height: leftRectangle.height - 10
-            radius: width / 2 // Радиус мяча для округлости
+            radius: width / 2
         }
 
         states: [
             State {
-                name: "RightState" // Определение состояния RightState
+                name: "InitialState"
                 PropertyChanges {
                     target: ball
-                    x: rightRectangle.x + 5 // Изменение координаты x мяча при переходе в RightState
+                    x: leftRectangle.x + 5
+                    y: leftRectangle.y + 5
                 }
             },
-
             State {
-                name: "LeftState" // Определение состояния LeftState
+                name: "OtherState"
                 PropertyChanges {
                     target: ball
-                    x: leftRectangle.x + 5 // Изменение координаты x мяча при переходе в LeftState
+                    x: ball.x // Сохраняем текущее значение x
                 }
             }
         ]
 
         transitions: [
             Transition {
-                from: "LeftState"
-                to: "RightState"
-                // Анимация перехода из LeftState в RightState
+                from: "OtherState"
+                to: "InitialState"
                 NumberAnimation {
                     target: ball
-                    property: "x" // Анимация изменения свойства x
-                    duration: 1000 // Длительность анимации в миллисекундах
-                    easing.type: Easing.OutBounce // Тип анимации (отскок)
-                }
-            },
-
-            Transition {
-                from: "RightState"
-                to: "LeftState"
-                // Анимация перехода из RightState в LeftState
-                NumberAnimation {
-                    target: ball
-                    property: "x" // Анимация изменения свойства x
-                    duration: 1000 // Длительность анимации в миллисекундах
-                    easing.type: Easing.InOutExpo // Тип анимации (экспоненциальная)
+                    property: "x"
+                    duration: 1000
+                    easing.type: Easing.OutBounce
                 }
             }
         ]
